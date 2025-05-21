@@ -1,0 +1,61 @@
+```sql
+CREATE TABLE `staff_daily_posts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `shop_id` int(11) NOT NULL COMMENT 'Reference to shop',
+  `autonum` varchar(50) DEFAULT NULL COMMENT 'Auto number from shop',
+  `title` varchar(255) DEFAULT NULL COMMENT 'Post title',
+  `staff_name` varchar(100) NOT NULL COMMENT 'Staff full name',
+  `job_type` enum('店長・幹部候補','店舗スタッフ','送迎ドライバー','事務・経理スタッフ','Webデザイナー') NOT NULL,
+  `joined_3_months` tinyint(1) DEFAULT 0 COMMENT '3 months employed flag',
+  `age_group` enum('10代','20代','30代','40代','50代','60代','70代') DEFAULT NULL,
+  `shift` enum('早番','中番','遅番','日勤','夜勤','準夜勤','深夜勤','2交代制','3交代制','通し') DEFAULT NULL,
+  `business_type` varchar(100) DEFAULT NULL COMMENT 'Business type from shop',
+  `thumbnail_image` varchar(255) DEFAULT NULL COMMENT 'Thumbnail image path',
+  `top_image` varchar(255) DEFAULT NULL COMMENT 'Top image path',
+  `public_status` enum('draft','published','private') NOT NULL DEFAULT 'draft',
+  `public_date` datetime DEFAULT NULL COMMENT 'Publication date/time',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `created_by` int(11) DEFAULT NULL COMMENT 'User ID who created',
+  `updated_by` int(11) DEFAULT NULL COMMENT 'User ID who last updated',
+  PRIMARY KEY (`id`),
+  KEY `shop_id` (`shop_id`),
+  KEY `public_status` (`public_status`),
+  KEY `public_date` (`public_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Main staff daily post table';
+```
+
+```sql
+CREATE TABLE `staff_daily_schedules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `post_id` int(11) NOT NULL COMMENT 'Reference to main post',
+  `sort_order` int(11) NOT NULL DEFAULT 0 COMMENT 'Order of display',
+  `time_hh` tinyint(2) NOT NULL DEFAULT 0 COMMENT 'Hour (0-23)',
+  `time_mm` tinyint(2) NOT NULL DEFAULT 0 COMMENT 'Minute (0-59)',
+  `job_title` varchar(100) DEFAULT NULL COMMENT 'Job title/heading',
+  `job_content` text DEFAULT NULL COMMENT 'Job description',
+  `main_image` varchar(255) DEFAULT NULL COMMENT 'Main image path',
+  `sub_image1` varchar(255) DEFAULT NULL COMMENT 'Sub image 1 path',
+  `sub_image2` varchar(255) DEFAULT NULL COMMENT 'Sub image 2 path',
+  `editor_comment` text DEFAULT NULL COMMENT 'Editor notes',
+  PRIMARY KEY (`id`),
+  KEY `post_id` (`post_id`),
+  KEY `sort_order` (`sort_order`),
+  CONSTRAINT `fk_schedules_post` FOREIGN KEY (`post_id`) REFERENCES `staff_daily_posts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Schedule blocks for staff daily posts';
+```
+
+```sql
+CREATE TABLE `staff_daily_points` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `post_id` int(11) NOT NULL COMMENT 'Reference to main post',
+  `sort_order` int(11) NOT NULL DEFAULT 0 COMMENT 'Order of display',
+  `title` varchar(100) DEFAULT NULL COMMENT 'Point title',
+  `details` text DEFAULT NULL COMMENT 'Point details',
+  `image` varchar(255) DEFAULT NULL COMMENT 'Image path',
+  PRIMARY KEY (`id`),
+  KEY `post_id` (`post_id`),
+  KEY `sort_order` (`sort_order`),
+  CONSTRAINT `fk_points_post` FOREIGN KEY (`post_id`) REFERENCES `staff_daily_posts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Attractive points for staff daily posts';
+```
