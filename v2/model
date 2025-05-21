@@ -1,0 +1,113 @@
+```php
+<?php
+class Model_StaffDailyPost extends Orm\Model
+{
+    protected static $_table_name = 'staff_daily_posts';
+    
+    protected static $_properties = [
+        'id',
+        'shop_id',
+        'autonum',
+        'title',
+        'staff_name',
+        'job_type',
+        'joined_3_months',
+        'age_group',
+        'shift',
+        'business_type',
+        'thumbnail_image',
+        'top_image',
+        'public_status',
+        'public_date',
+        'created_at',
+        'updated_at',
+        'created_by',
+        'updated_by',
+    ];
+    
+    protected static $_has_many = [
+        'schedules' => [
+            'model_to' => 'Model_StaffDailySchedule',
+            'key_from' => 'id',
+            'key_to'   => 'post_id',
+            'cascade_save' => true,
+            'cascade_delete' => true,
+        ],
+        'points' => [
+            'model_to' => 'Model_StaffDailyPoint',
+            'key_from' => 'id',
+            'key_to'   => 'post_id',
+            'cascade_save' => true,
+            'cascade_delete' => true,
+        ],
+    ];
+    
+    protected static $_observers = [
+        'Orm\Observer_CreatedAt' => [
+            'events' => ['before_insert'],
+            'property' => 'created_at',
+            'mysql_timestamp' => false,
+        ],
+        'Orm\Observer_UpdatedAt' => [
+            'events' => ['before_update'],
+            'property' => 'updated_at',
+            'mysql_timestamp' => false,
+        ],
+    ];
+}
+```
+
+```php
+<?php
+class Model_StaffDailySchedule extends Orm\Model
+{
+    protected static $_table_name = 'staff_daily_schedules';
+    
+    protected static $_properties = [
+        'id',
+        'post_id',
+        'sort_order',
+        'time_hh',
+        'time_mm',
+        'job_title',
+        'job_content',
+        'main_image',
+        'sub_image1',
+        'sub_image2',
+        'editor_comment',
+    ];
+    
+    protected static $_belongs_to = [
+        'post' => [
+            'model_to' => 'Model_StaffDailyPost',
+            'key_from' => 'post_id',
+            'key_to'   => 'id',
+        ],
+    ];
+}
+```
+
+```php
+<?php
+class Model_StaffDailyPoint extends Orm\Model
+{
+    protected static $_table_name = 'staff_daily_points';
+    
+    protected static $_properties = [
+        'id',
+        'post_id',
+        'sort_order',
+        'title',
+        'details',
+        'image',
+    ];
+    
+    protected static $_belongs_to = [
+        'post' => [
+            'model_to' => 'Model_StaffDailyPost',
+            'key_from' => 'post_id',
+            'key_to'   => 'id',
+        ],
+    ];
+}
+```
