@@ -1,0 +1,70 @@
+```php
+public function action_save($id = null)
+{
+    // Start transaction
+    $post = null;
+    DB::start_transaction();
+    
+    try {
+        if ($id) {
+            // Edit existing post
+            $post = Model_StaffDailyPost::find($id);
+        } else {
+            // Create new post
+            $post = Model_StaffDailyPost::forge();
+        }
+        
+        // Set main post properties from input
+        $post->shop_id = Input::post('shop_id');
+        $post->staff_name = Input::post('staff_name');
+        // ... set other fields
+        
+        // Save main post first
+        if (!$post->save()) {
+            throw new Exception('Failed to save main post');
+        }
+        
+        // Handle schedules
+        $this->save_schedules($post);
+        
+        // Handle points
+        $this->save_points($post);
+        
+        // Commit transaction
+        DB::commit_transaction();
+        
+        // Redirect to success page
+        Response::redirect('staffdaily/success');
+        
+    } catch (Exception $e) {
+        DB::rollback_transaction();
+        Session::set_flash('error', $e->getMessage());
+        // Redirect back or show error
+    }
+}
+
+private function save_schedules($post)
+{
+    // Delete existing schedules if editing
+    if ($post->id) {
+        foreach ($post->schedules as $schedule) {
+            $schedule->delete();
+        }
+    }
+    
+    // Add new schedules from input
+    $schedules = Input::post('schedule', []);
+    foreach ($schedules as $i => $schedule_data) {
+        $schedule = Model_StaffDailySchedule::forge();
+        $schedule->post_id = $post->id;
+        $schedule->sort_order = $i;
+        $schedule->time_hh = $schedule_data['hh'];
+        $schedule->time_mm = $schedule_data['mm'];
+        // ... set other fields
+        
+        if (!$schedule->save()) {
+            throw new Exception('Failed to save schedule');
+        }
+    }
+}
+```
