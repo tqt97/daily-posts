@@ -1,0 +1,114 @@
+-- Lấy thông tin bài viết chính theo ID
+```sql SELECT
+  id,
+  shop_id,
+  full_name,
+  job_type,
+  is_within_3_months,
+  age_group,
+  shift,
+  business_type,
+  publication_status,
+  publication_date,
+  thumbnail_image,
+  top_image,
+  created_by,
+  updated_by,
+  created_at,
+  updated_at
+FROM staff_daily_posts
+WHERE id = ?;
+```
+-- Thay ? bằng ID cụ thể
+
+-- Lấy danh sách lịch trình theo thứ tự position
+```sql
+SELECT
+  id,
+  post_id,
+  position,
+  TIME_FORMAT(time_from, '%H:%i') as time_from,
+  job_title,
+  job_content,
+  main_image,
+  sub_image1,
+  sub_image2,
+  editor_comment
+FROM staff_daily_schedules
+WHERE post_id = ?
+ORDER BY position ASC;
+```
+-- Lấy danh sách điểm hấp dẫn theo thứ tự position
+```sql
+SELECT
+  id,
+  post_id,
+  position,
+  title,
+  detail,
+  image
+FROM staff_daily_points
+WHERE post_id = ?
+ORDER BY position ASC;
+```
+
+---
+```sql
+SELECT
+  id,
+  shop_id,
+  full_name,
+  job_type,
+  is_within_3_months,
+  age_group,
+  shift,
+  business_type,
+  publication_status,
+  publication_date,
+  thumbnail_image,
+  top_image,
+  created_by,
+  updated_by,
+  created_at,
+  updated_at
+FROM staff_daily_posts
+WHERE
+  -- Filter theo joined company <= 3 tháng nếu cần
+  (is_within_3_months = ? OR ? IS NULL)
+  -- Tìm kiếm theo full_name (nếu tham số tìm kiếm không rỗng)
+  AND (full_name LIKE CONCAT('%', ?, '%') OR ? IS NULL)
+ORDER BY publication_date DESC, id DESC
+LIMIT ? OFFSET ?;
+```
+
+
+```php
+// Giả sử $post_id là ID của bài viết cần xóa
+$post_id = 123;
+
+try {
+    \DB::start_transaction();
+
+    // Xóa lịch trình liên quan
+    \DB::delete('staff_daily_schedules')
+        ->where('post_id', '=', $post_id)
+        ->execute();
+
+    // Xóa điểm hấp dẫn liên quan
+    \DB::delete('staff_daily_points')
+        ->where('post_id', '=', $post_id)
+        ->execute();
+
+    // Xóa bài viết chính
+    \DB::delete('staff_daily_posts')
+        ->where('id', '=', $post_id)
+        ->execute();
+
+    \DB::commit_transaction();
+
+} catch (\Exception $e) {
+    \DB::rollback_transaction();
+    // Xử lý lỗi, ví dụ log hoặc ném tiếp exception
+    throw $e;
+}
+```
