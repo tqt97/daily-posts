@@ -1,0 +1,92 @@
+```php
+class Model_Staff_Daily_Post extends Orm\Model
+{
+    protected static $_table_name = 'staff_daily_posts';
+
+    protected static $_has_many = [
+        'schedules' => [
+            'key_from' => 'id',
+            'model_to' => 'Model_Staff_Daily_Schedule',
+            'key_to' => 'post_id',
+            'cascade_delete' => true,  // khi xóa post sẽ xóa schedules liên quan
+        ],
+        'points' => [
+            'key_from' => 'id',
+            'model_to' => 'Model_Staff_Daily_Point',
+            'key_to' => 'post_id',
+            'cascade_delete' => true,  // khi xóa post sẽ xóa points liên quan
+        ],
+    ];
+
+    protected static $_properties = [
+        'id',
+        'shop_id',
+        'full_name',
+        'job_type',
+        'is_within_3_months',
+        'age_group',
+        'shift',
+        'business_type',
+        'publication_status',
+        'publication_date',
+        'thumbnail_image',
+        'top_image',
+        'created_by',
+        'updated_by',
+        'created_at',
+        'updated_at',
+    ];
+}
+```
+
+```php
+class Model_Staff_Daily_Schedule extends Orm\Model
+{
+    protected static $_table_name = 'staff_daily_schedules';
+
+    protected static $_belongs_to = [
+        'post' => [
+            'key_from' => 'post_id',
+            'model_to' => 'Model_Staff_Daily_Post',
+            'key_to' => 'id',
+        ],
+    ];
+
+    protected static $_properties = [
+        'id',
+        'post_id',
+        'position',
+        'time_from',
+        'job_title',
+        'job_content',
+        'main_image',
+        'sub_image1',
+        'sub_image2',
+        'editor_comment',
+    ];
+}
+```
+
+```php
+class Model_Staff_Daily_Point extends Orm\Model
+{
+    protected static $_table_name = 'staff_daily_points';
+
+    protected static $_belongs_to = [
+        'post' => [
+            'key_from' => 'post_id',
+            'model_to' => 'Model_Staff_Daily_Post',
+            'key_to' => 'id',
+        ],
+    ];
+
+    protected static $_properties = [
+        'id',
+        'post_id',
+        'position',
+        'title',
+        'detail',
+        'image',
+    ];
+}
+```
